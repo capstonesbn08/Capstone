@@ -1,0 +1,79 @@
+.ipynb_checkpoints/
+__pycache__/
+*.swp
+echonet.cfg
+.echonet.cfg
+*.pyc
+echonet.egg-info/
+a4c-video-dir/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+output/
+ephone.egg-info/
+*.pt
+*.pth
+*.pdf
+*.csv
+*.txt (except specific ones)
+
+# Data directories (usually not pushed to GitHub)
+dynamic/a4c-video-dir/
+*.avi
+*.dcm
+*.mp4
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# Config files (except templates)
+*.cfg (keep example.cfg as template)
+!example.cfg
