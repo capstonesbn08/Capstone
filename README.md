@@ -95,3 +95,32 @@ This script combines the results from segmentation output in `size.csv` and the 
 
 The full set of hyperparameter sweeps from the paper can be run via `run_experiments.sh`.
 In particular, we choose between pretrained and random initialization for the weights, the model (selected from `r2plus1d_18`, `r3d_18`, and `mc3_18`), the length of the video (1, 4, 8, 16, 32, 64, and 96 frames), and the sampling period (1, 2, 4, 6, and 8 frames).
+
+
+### echonet setup guide
+EchoNet Setup Documentation
+1. Clone Repository
+git clone <repo-link>
+cd ~/Capstone/echonet
+2. Create Virtual Environment
+cd ~/Capstone
+python3 -m venv venv
+source venv/bin/activate
+3. Python Version Fix
+Used Python 3.9 instead of Python 3.12 for compatibility with older ML libraries.
+4. Install Dependencies
+Removed 'echonet==1.0.0' from requirements.txt (local package).
+pip install --upgrade pip
+pip install -r requirements.txt
+5. Install Project Locally
+cd ~/Capstone/echonet
+pip install -e .
+6. Fix OpenCV Error
+sudo apt install libgl1 -y
+sudo apt install libglib2.0-0 -y
+7. Run the Code
+cd ~/Capstone/echonet/datasets
+python echo.py
+Key Learnings
+• pip install installs from internet • pip install -e . installs local project • Python version compatibility is
+crucial • System dependencies may be required
