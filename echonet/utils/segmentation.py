@@ -51,7 +51,7 @@ def run(
     weight_decay=1e-5,
     lr_step_period=None,
     num_train_patients=None,
-    num_workers=4,
+    num_workers=0,
     batch_size=20,
     device=None,
     seed=0,

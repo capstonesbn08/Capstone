@@ -82,7 +82,7 @@ def main(fig_root=os.path.join("figure", "noise"),
             dataset = echonet.datasets.Echo(split="test", **kwargs)
 
             dataloader = torch.utils.data.DataLoader(dataset,
-                                                     batch_size=16, num_workers=5, shuffle=True, pin_memory=(device.type == "cuda"))
+                                                     batch_size=16, num_workers=0, shuffle=True, pin_memory=(device.type == "cuda"))
 
             loss, large_inter, large_union, small_inter, small_union = echonet.utils.segmentation.run_epoch(model_s, dataloader, "test", None, device)
             inter = np.concatenate((large_inter, small_inter)).sum()
@@ -103,7 +103,7 @@ def main(fig_root=os.path.join("figure", "noise"),
             dataset = echonet.datasets.Echo(split="test", **kwargs)
 
             dataloader = torch.utils.data.DataLoader(dataset,
-                                                     batch_size=16, num_workers=5, shuffle=True, pin_memory=(device.type == "cuda"))
+                                                     batch_size=16, num_workers=0, shuffle=True, pin_memory=(device.type == "cuda"))
             loss, yhat, y = echonet.utils.video.run_epoch(model_v, dataloader, "test", None, device)
             mse.append(loss)
             r2.append(sklearn.metrics.r2_score(y, yhat))
