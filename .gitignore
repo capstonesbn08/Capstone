@@ -77,3 +77,5 @@ dynamic/a4c-video-dir/
 # Config files (except templates)
 *.cfg (keep example.cfg as template)
 !example.cfgEchoNet-Dynamic/
+EchoNet-Dynamic/*.zip
+output/
