@@ -9,6 +9,10 @@ class LIFNeuron(nn.Module):
         self.decay = decay
         self.mem = None
 
+        # Spike rate tracking
+        self.spike_count = 0
+        self.element_count = 0
+
     def forward(self, x):
         # 🔥 Initialize membrane on correct device & shape
         if self.mem is None or self.mem.shape != x.shape:
@@ -20,6 +24,10 @@ class LIFNeuron(nn.Module):
         # 🔹 Generate spikes
         spike = (self.mem >= self.threshold).float()
 
+        # 🔹 Track spike rate
+        self.spike_count += spike.sum().item()
+        self.element_count += spike.numel()
+
         # 🔹 Reset only where spikes occurred
         self.mem = self.mem * (1 - spike)
 
@@ -27,3 +35,14 @@ class LIFNeuron(nn.Module):
 
     def reset(self):
         self.mem = None
+
+    def get_spike_rate(self):
+        """Return fraction of elements that fired since last reset_stats()."""
+        if self.element_count == 0:
+            return 0.0
+        return self.spike_count / self.element_count
+
+    def reset_stats(self):
+        """Reset spike counters (call between batches or eval runs)."""
+        self.spike_count = 0
+        self.element_count = 0

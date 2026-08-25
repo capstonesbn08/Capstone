@@ -1,25 +1,29 @@
 import torch
 import torch.nn as nn
 
-from echonet.snn.conversion import convert_to_snn  # ✅ ADDED
 
 class SpikingModel(nn.Module):
     def __init__(self, model, time_steps=20):
         super().__init__()
 
-        # 🔥 Convert CNN → SNN
-        self.model = convert_to_snn(model)   # ✅ IMPORTANT
-
+        # Model should already be converted (BN folded, weights scaled,
+        # ReLU→LIF replaced) BEFORE being passed here.
+        self.model = model
         self.time_steps = time_steps
 
     def forward(self, x):
+        """
+        x: input normalised to [0, 1] (NOT pre-encoded spikes).
+        A fresh Bernoulli spike train is sampled each timestep.
+        """
         outputs = []
 
         for t in range(self.time_steps):
-            out = self.model(x)
+            spike_input = torch.bernoulli(x)   # fresh sample every step
+            out = self.model(spike_input)
             outputs.append(out)
 
-        # average over time
+        # average real-valued outputs over T timesteps
         return torch.stack(outputs).mean(0)
 
     def reset(self):
