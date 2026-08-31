@@ -3,46 +3,65 @@ import torch.nn as nn
 
 
 class LIFNeuron(nn.Module):
+    """
+    Leaky Integrate-and-Fire neuron.
+
+    The neuron:
+      1. Integrates incoming current into membrane potential.
+      2. Emits a spike when membrane >= threshold.
+      3. Resets only the spiking elements.
+      4. Tracks spike statistics for evaluation.
+
+    This implementation is stateful across timesteps.
+    """
+
     def __init__(self, threshold=1.0, decay=0.9):
         super().__init__()
-        self.threshold = threshold
-        self.decay = decay
+
+        self.threshold = float(threshold)
+        self.decay = float(decay)
+
         self.mem = None
 
-        # Spike rate tracking
-        self.spike_count = 0
+        self.spike_count = 0.0
         self.element_count = 0
 
     def forward(self, x):
-        # 🔥 Initialize membrane on correct device & shape
-        if self.mem is None or self.mem.shape != x.shape:
+        # Initialize membrane with the current tensor's shape/device.
+        if (
+            self.mem is None
+            or self.mem.shape != x.shape
+            or self.mem.device != x.device
+            or self.mem.dtype != x.dtype
+        ):
             self.mem = torch.zeros_like(x)
 
-        # 🔹 Integrate (leaky accumulation)
-        self.mem = self.mem * self.decay + x
+        # Leaky integration.
+        self.mem = self.decay * self.mem + x
 
-        # 🔹 Generate spikes
-        spike = (self.mem >= self.threshold).float()
+        # Generate spikes.
+        spike = (self.mem >= self.threshold).to(x.dtype)
 
-        # 🔹 Track spike rate
-        self.spike_count += spike.sum().item()
+        # Statistics.
+        self.spike_count += spike.detach().sum().item()
         self.element_count += spike.numel()
 
-        # 🔹 Reset only where spikes occurred
-        self.mem = self.mem * (1 - spike)
+        # Soft reset only at locations that fired.
+        self.mem = self.mem * (1.0 - spike)
 
         return spike
 
     def reset(self):
+        """Reset membrane state between independent samples/batches."""
         self.mem = None
 
+    def reset_stats(self):
+        """Reset spike-rate statistics."""
+        self.spike_count = 0.0
+        self.element_count = 0
+
     def get_spike_rate(self):
-        """Return fraction of elements that fired since last reset_stats()."""
         if self.element_count == 0:
             return 0.0
-        return self.spike_count / self.element_count
 
-    def reset_stats(self):
-        """Reset spike counters (call between batches or eval runs)."""
-        self.spike_count = 0
-        self.element_count = 0
+        return self.spike_count / self.element_count

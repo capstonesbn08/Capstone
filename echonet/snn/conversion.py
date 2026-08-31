@@ -1,136 +1,355 @@
 import torch
 import torch.nn as nn
+
 from echonet.snn.lif import LIFNeuron
 
 
 # =========================================================
-# 🔹 BatchNorm Folding
+# BatchNorm Folding
 # =========================================================
-def _fold_bn_into_conv(conv, bn):
-    """Fold a BN layer's parameters into the preceding Conv layer."""
-    with torch.no_grad():
-        scale = bn.weight / torch.sqrt(bn.running_var + bn.eps)
 
-        if conv.weight.dim() == 5:        # Conv3d
+def _fold_bn_into_conv(conv, bn):
+    """
+    Fold BatchNorm parameters into the preceding convolution.
+    """
+
+    with torch.no_grad():
+
+        scale = bn.weight / torch.sqrt(
+            bn.running_var + bn.eps
+        )
+
+        if conv.weight.dim() == 5:
             scale_view = scale.view(-1, 1, 1, 1, 1)
-        else:                             # Conv2d
+        else:
             scale_view = scale.view(-1, 1, 1, 1)
 
         conv.weight.data *= scale_view
 
         if conv.bias is None:
             conv.bias = nn.Parameter(
-                torch.zeros(conv.out_channels, device=conv.weight.device)
+                torch.zeros(
+                    conv.out_channels,
+                    device=conv.weight.device,
+                    dtype=conv.weight.dtype,
+                )
             )
-        conv.bias.data = (conv.bias.data - bn.running_mean) * scale + bn.bias
+
+        conv.bias.data = (
+            (conv.bias.data - bn.running_mean) * scale
+            + bn.bias
+        )
 
 
 def fold_batchnorm(model):
     """
-    Fold ALL BatchNorm layers into their preceding Conv layers.
+    Fold BatchNorm2d/BatchNorm3d layers into preceding
+    Conv2d/Conv3d layers.
 
-    Uses module traversal order (which matches forward pass order)
-    rather than direct parent-child pairs — this correctly handles
-    R(2+1)D's nested Conv2Plus1D → BatchNorm3d structure.
+    This preserves the model's inference behavior while
+    removing BatchNorm from the SNN conversion path.
     """
+
     modules_list = list(model.named_modules())
 
-    # Track the last Conv seen in traversal order
     prev_conv = None
     pairs_to_fold = []
 
     for name, module in modules_list:
+
         if isinstance(module, (nn.Conv2d, nn.Conv3d)):
             prev_conv = module
-        elif isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d)):
-            if prev_conv is not None:
-                pairs_to_fold.append((prev_conv, module, name))
-            prev_conv = None   # consumed
 
-    # Fold each pair
+        elif isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d)):
+
+            if prev_conv is not None:
+                pairs_to_fold.append(
+                    (prev_conv, module, name)
+                )
+
+            prev_conv = None
+
     for conv, bn, bn_name in pairs_to_fold:
+
         _fold_bn_into_conv(conv, bn)
 
-        # Replace BN with Identity using parent module
-        parts = bn_name.rsplit('.', 1)
+        parts = bn_name.rsplit(".", 1)
+
         if len(parts) == 2:
+
             parent_name, child_name = parts
-            parent = dict(model.named_modules())[parent_name]
-            setattr(parent, child_name, nn.Identity())
-        else:
-            setattr(model, bn_name, nn.Identity())
 
-    n_remaining = sum(1 for m in model.modules()
-                      if isinstance(m, (nn.BatchNorm2d, nn.BatchNorm3d)))
-    print(f"✅ BN folding: {len(pairs_to_fold)} folded, {n_remaining} remaining")
+            parent = dict(
+                model.named_modules()
+            )[parent_name]
+
+            setattr(
+                parent,
+                child_name,
+                nn.Identity()
+            )
+
+        else:
+
+            setattr(
+                model,
+                bn_name,
+                nn.Identity()
+            )
+
+    remaining = sum(
+        1
+        for module in model.modules()
+        if isinstance(
+            module,
+            (nn.BatchNorm2d, nn.BatchNorm3d)
+        )
+    )
+
+    print(
+        f"✅ BN folding: "
+        f"{len(pairs_to_fold)} folded, "
+        f"{remaining} remaining"
+    )
 
     return model
 
 
 # =========================================================
-# 🔹 Replace ReLU → LIF
+# ReLU → LIF
 # =========================================================
-def replace_relu_with_lif(model, threshold=1.0):
-    """Recursively replace nn.ReLU with LIFNeuron."""
+def replace_relu_with_lif(
+    model,
+    threshold=1.0,
+    decay=0.9,
+    layer_thresholds=None,
+    exclude_prefixes=None,
+    _prefix="",
+):
+    """
+    Recursively replace ReLU activations with LIF neurons.
+
+    If layer_thresholds is provided, it should be a dict mapping
+    dotted module names (as produced by model.named_modules()) to
+    a calibrated threshold. Any ReLU whose name is found in the
+    dict uses that calibrated value; all others fall back to the
+    global `threshold`.
+
+    If exclude_prefixes is provided (a list of dotted-name
+    prefixes), any ReLU whose name starts with one of those
+    prefixes is left as a plain nn.ReLU and NOT converted to LIF.
+    This allows keeping some layers (e.g. the final block) as
+    ordinary analog activations.
+    """
+
     for name, module in model.named_children():
+
+        full_name = f"{_prefix}.{name}" if _prefix else name
+
         if isinstance(module, nn.ReLU):
-            setattr(model, name, LIFNeuron(threshold=threshold))
+
+            if exclude_prefixes and any(
+                full_name == p or full_name.startswith(p + ".")
+                for p in exclude_prefixes
+            ):
+                # Leave this ReLU unconverted.
+                continue
+
+            layer_threshold = threshold
+
+            if (
+                layer_thresholds is not None
+                and full_name in layer_thresholds
+            ):
+                layer_threshold = layer_thresholds[full_name]
+
+            setattr(
+                model,
+                name,
+                LIFNeuron(
+                    threshold=layer_threshold,
+                    decay=decay,
+                )
+            )
+
         else:
-            replace_relu_with_lif(module, threshold=threshold)
+
+            replace_relu_with_lif(
+                module,
+                threshold=threshold,
+                decay=decay,
+                layer_thresholds=layer_thresholds,
+                exclude_prefixes=exclude_prefixes,
+                _prefix=full_name,
+            )
+
     return model
 
 
 # =========================================================
-# 🔹 Apply RNL Weight Scaling
+# Optional RNL Scaling (legacy — kept for comparison only,
+# not used by default anymore; threshold calibration via
+# rnl.calibrate_thresholds() is the supported path now)
 # =========================================================
-def apply_weight_scaling(model, max_activations):
-    """
-    Scale each Conv/Linear layer's weights by its max activation.
 
-    Output layer (out_features==1): compensated with previous scale
-    so spike-rate inputs produce correct EF range.
+def apply_weight_scaling(
+    model,
+    max_activations,
+):
     """
-    scales = list(max_activations.values())
+    Apply conservative activation scaling.
+
+    IMPORTANT:
+    This function is intentionally conservative.
+
+    NOTE: This matches calibration stats to layers by position
+    (enumeration order of model.modules()), which is NOT
+    guaranteed to match the hook-registration/execution order
+    used to build max_activations. Prefer
+    rnl.calibrate_thresholds() + layer_thresholds in
+    convert_to_snn() instead, which matches by exact module name.
+    """
+
+    if not max_activations:
+        print("⚠️ No activation statistics supplied.")
+        return model
+
+    print(
+        "⚠️ Conservative RNL scaling requested."
+    )
+
     target_modules = [
-        m for m in model.modules()
-        if isinstance(m, (nn.Conv2d, nn.Conv3d, nn.Linear))
+        module
+        for module in model.modules()
+        if isinstance(
+            module,
+            (nn.Conv2d, nn.Conv3d, nn.Linear)
+        )
     ]
 
+    scales = list(max_activations.values())
+
+    applied = 0
+
     for i, module in enumerate(target_modules):
+
         if i >= len(scales):
             break
-        scale = scales[i]
+
+        scale = float(scales[i])
+
         if scale <= 0:
             continue
 
-        if isinstance(module, nn.Linear) and module.out_features == 1:
-            prev_scale = scales[i - 1] if i > 0 else 1.0
-            module.weight.data *= prev_scale
-            print(f"✅ Output layer {i}: compensated ×{prev_scale:.4f}, "
-                  f"bias kept at {module.bias.data.item():.2f}")
-        else:
-            module.weight.data /= scale
-            if module.bias is not None:
-                module.bias.data /= scale
-            print(f"✅ Scaled layer {i} by {scale:.4f}")
+        # Do not modify the final regression layer.
+        if (
+            isinstance(module, nn.Linear)
+            and module.out_features == 1
+        ):
+            print(
+                f"⏭️ Skipping output layer {i} "
+                f"(scale={scale:.4f})"
+            )
+            continue
+
+        # Only use moderate scaling.
+        # This prevents a huge activation outlier
+        # from destroying the spike representation.
+        scale = max(scale, 1.0)
+
+        module.weight.data /= scale
+
+        if module.bias is not None:
+            module.bias.data /= scale
+
+        applied += 1
+
+        print(
+            f"✅ Conservatively scaled layer "
+            f"{i} by {scale:.4f}"
+        )
+
+    print(
+        f"✅ Applied conservative scaling "
+        f"to {applied} layers"
+    )
+
+    return model
 
 
 # =========================================================
-# 🔹 Full CNN → SNN Conversion
+# Full CNN → SNN Conversion
 # =========================================================
-def convert_to_snn(model, max_activations=None, lif_threshold=1.0):
-    """
-    1. Apply weight scaling (if RNL activations provided)
-    2. Replace ReLU → LIF neurons
-    """
-    if max_activations is not None:
-        print("⚡ Applying weight scaling...")
-        apply_weight_scaling(model, max_activations)
-        print("✅ Weight scaling done")
 
-    print(f"⚡ Replacing ReLU → LIF (threshold={lif_threshold})...")
-    model = replace_relu_with_lif(model, threshold=lif_threshold)
-    n_lif = sum(1 for m in model.modules() if isinstance(m, LIFNeuron))
-    print(f"✅ Conversion complete — {n_lif} LIF neurons inserted")
+def convert_to_snn(
+    model,
+    layer_thresholds=None,
+    lif_threshold=1.0,
+    lif_decay=0.9,
+    exclude_prefixes=None,
+):
+    """
+    Convert an inference-time CNN into an SNN.
+
+    Steps:
+
+        1. Replace ReLU with LIF, using per-layer calibrated
+           thresholds where available (layer_thresholds), and
+           falling back to lif_threshold otherwise. Any layer
+           whose name starts with a prefix in exclude_prefixes
+           is left as an ordinary (non-spiking) ReLU.
+
+    BatchNorm folding should be performed BEFORE calling
+    this function.
+    """
+
+    if exclude_prefixes:
+        print(
+            f"⚡ Excluding from conversion (stays analog ReLU): "
+            f"{exclude_prefixes}"
+        )
+
+    if layer_thresholds:
+        print(
+            f"⚡ Using calibrated per-layer thresholds "
+            f"for {len(layer_thresholds)} layers "
+            f"(fallback={lif_threshold})"
+        )
+    else:
+        print(
+            f"⚡ No calibrated thresholds supplied — "
+            f"using uniform threshold={lif_threshold}"
+        )
+
+    print(
+        f"⚡ Replacing ReLU → LIF "
+        f"(decay={lif_decay})..."
+    )
+
+    model = replace_relu_with_lif(
+        model,
+        threshold=lif_threshold,
+        decay=lif_decay,
+        layer_thresholds=layer_thresholds,
+        exclude_prefixes=exclude_prefixes,
+    )
+
+    n_lif = sum(
+        1
+        for module in model.modules()
+        if isinstance(module, LIFNeuron)
+    )
+
+    n_relu_remaining = sum(
+        1
+        for module in model.modules()
+        if isinstance(module, nn.ReLU)
+    )
+
+    print(
+        f"✅ Conversion complete — "
+        f"{n_lif} LIF neurons inserted, "
+        f"{n_relu_remaining} ReLU layers left analog"
+    )
 
     return model
