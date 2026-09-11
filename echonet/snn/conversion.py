@@ -124,24 +124,11 @@ def replace_relu_with_lif(
     decay=0.9,
     layer_thresholds=None,
     exclude_prefixes=None,
+    surrogate=False,
+    surrogate_scale=10.0,
+    detach_reset=True,
     _prefix="",
 ):
-    """
-    Recursively replace ReLU activations with LIF neurons.
-
-    If layer_thresholds is provided, it should be a dict mapping
-    dotted module names (as produced by model.named_modules()) to
-    a calibrated threshold. Any ReLU whose name is found in the
-    dict uses that calibrated value; all others fall back to the
-    global `threshold`.
-
-    If exclude_prefixes is provided (a list of dotted-name
-    prefixes), any ReLU whose name starts with one of those
-    prefixes is left as a plain nn.ReLU and NOT converted to LIF.
-    This allows keeping some layers (e.g. the final block) as
-    ordinary analog activations.
-    """
-
     for name, module in model.named_children():
 
         full_name = f"{_prefix}.{name}" if _prefix else name
@@ -152,7 +139,6 @@ def replace_relu_with_lif(
                 full_name == p or full_name.startswith(p + ".")
                 for p in exclude_prefixes
             ):
-                # Leave this ReLU unconverted.
                 continue
 
             layer_threshold = threshold
@@ -169,6 +155,9 @@ def replace_relu_with_lif(
                 LIFNeuron(
                     threshold=layer_threshold,
                     decay=decay,
+                    surrogate=surrogate,
+                    surrogate_scale=surrogate_scale,
+                    detach_reset=detach_reset,
                 )
             )
 
@@ -180,6 +169,9 @@ def replace_relu_with_lif(
                 decay=decay,
                 layer_thresholds=layer_thresholds,
                 exclude_prefixes=exclude_prefixes,
+                surrogate=surrogate,
+                surrogate_scale=surrogate_scale,
+                detach_reset=detach_reset,
                 _prefix=full_name,
             )
 
@@ -280,51 +272,28 @@ def apply_weight_scaling(
 # =========================================================
 # Full CNN → SNN Conversion
 # =========================================================
-
 def convert_to_snn(
     model,
     layer_thresholds=None,
     lif_threshold=1.0,
     lif_decay=0.9,
     exclude_prefixes=None,
+    surrogate=False,
+    surrogate_scale=10.0,
+    detach_reset=True,
 ):
-    """
-    Convert an inference-time CNN into an SNN.
-
-    Steps:
-
-        1. Replace ReLU with LIF, using per-layer calibrated
-           thresholds where available (layer_thresholds), and
-           falling back to lif_threshold otherwise. Any layer
-           whose name starts with a prefix in exclude_prefixes
-           is left as an ordinary (non-spiking) ReLU.
-
-    BatchNorm folding should be performed BEFORE calling
-    this function.
-    """
-
     if exclude_prefixes:
-        print(
-            f"⚡ Excluding from conversion (stays analog ReLU): "
-            f"{exclude_prefixes}"
-        )
+        print(f"⚡ Excluding from conversion (stays analog ReLU): {exclude_prefixes}")
 
     if layer_thresholds:
-        print(
-            f"⚡ Using calibrated per-layer thresholds "
-            f"for {len(layer_thresholds)} layers "
-            f"(fallback={lif_threshold})"
-        )
+        print(f"⚡ Using calibrated per-layer thresholds for {len(layer_thresholds)} layers (fallback={lif_threshold})")
     else:
-        print(
-            f"⚡ No calibrated thresholds supplied — "
-            f"using uniform threshold={lif_threshold}"
-        )
+        print(f"⚡ No calibrated thresholds supplied — using uniform threshold={lif_threshold}")
 
-    print(
-        f"⚡ Replacing ReLU → LIF "
-        f"(decay={lif_decay})..."
-    )
+    if surrogate:
+        print(f"⚡ Surrogate gradients ENABLED (scale={surrogate_scale}, detach_reset={detach_reset}) — trainable LIF layers")
+
+    print(f"⚡ Replacing ReLU → LIF (decay={lif_decay})...")
 
     model = replace_relu_with_lif(
         model,
@@ -332,24 +301,14 @@ def convert_to_snn(
         decay=lif_decay,
         layer_thresholds=layer_thresholds,
         exclude_prefixes=exclude_prefixes,
+        surrogate=surrogate,
+        surrogate_scale=surrogate_scale,
+        detach_reset=detach_reset,
     )
 
-    n_lif = sum(
-        1
-        for module in model.modules()
-        if isinstance(module, LIFNeuron)
-    )
+    n_lif = sum(1 for m in model.modules() if isinstance(m, LIFNeuron))
+    n_relu_remaining = sum(1 for m in model.modules() if isinstance(m, nn.ReLU))
 
-    n_relu_remaining = sum(
-        1
-        for module in model.modules()
-        if isinstance(module, nn.ReLU)
-    )
-
-    print(
-        f"✅ Conversion complete — "
-        f"{n_lif} LIF neurons inserted, "
-        f"{n_relu_remaining} ReLU layers left analog"
-    )
+    print(f"✅ Conversion complete — {n_lif} LIF neurons inserted, {n_relu_remaining} ReLU layers left analog")
 
     return model
