@@ -31,14 +31,23 @@ import torch.nn as nn
 import torch.optim as optim
 import tqdm
 import torchvision
-
+import random
 import echonet
+
 
 from echonet.snn.conversion import fold_batchnorm, convert_to_snn
 from echonet.snn.spiking_model import SpikingModel
 from echonet.snn.lif import LIFNeuron
 
 
+SEED = 42
+
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
 # ============================================================
 # ARGUMENTS
 # ============================================================
@@ -75,9 +84,23 @@ parser.add_argument("--save_path", default="snn_finetuned.pt")
 parser.add_argument("--log_every", type=int, default=10, help="Print training loss every N batches")
 
 parser.add_argument(
+    "--checkpoint_every",
+    type=int,
+    default=2,
+    help="Save a training checkpoint every N epochs"
+)
+
+parser.add_argument(
     "--resume_from",
     default=None,
     help="Path to a previously fine-tuned checkpoint (from this script) to resume training from, instead of starting fresh from --weights",
+)
+
+parser.add_argument(
+    "--checkpoint_every",
+    type=int,
+    default=2,
+    help="Save checkpoint every N epochs",
 )
 
 args = parser.parse_args()
@@ -350,6 +373,29 @@ for epoch in range(1, args.epochs + 1):
                 args.save_path,
             )
             print(f"  ✅ New best R2={r2:.4f} — saved to {args.save_path}")
+
+    # ============================================================
+    # PERIODIC CHECKPOINT
+    # ============================================================
+
+    if epoch % args.checkpoint_every == 0:
+        checkpoint_path = f"snn_checkpoint_epoch_{epoch}.pt"
+
+        torch.save(
+            {
+                "state_dict": snn_cnn.state_dict(),
+                "epoch": epoch,
+                "val_mae": mae,
+                "val_rmse": rmse,
+                "val_r2": r2,
+                "best_r2": best_r2,
+                "optimizer_state_dict": optimizer.state_dict(),
+                "settings": vars(args),
+            },
+            checkpoint_path,
+        )
+
+        print(f"💾 Checkpoint saved: {checkpoint_path}")
 
     # back to training mode for next epoch
     snn_model_train.train()
