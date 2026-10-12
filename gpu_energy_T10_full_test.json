@@ -1,0 +1,86 @@
+{
+  "settings": {
+    "data_dir": "/home/mluser/datasets/EchoNet-Dynamic",
+    "weights": "/home/mluser/checkpoints/best.pt",
+    "finetuned_checkpoint": "ckpt_l4/l4_40ep_best_e24.pt",
+    "T": 10,
+    "warmup": 10,
+    "idle_seconds": 30,
+    "sample_interval": 0.1,
+    "mean": [
+      32.17089,
+      32.344757,
+      32.69524
+    ],
+    "std": [
+      49.570095,
+      49.708492,
+      50.082714
+    ],
+    "out": "gpu_energy_T10_full_test.json",
+    "split": "test",
+    "max_samples": null,
+    "batch_size": 1
+  },
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "idle_baseline": {
+    "sample_count": 238,
+    "avg_power_w": 48.61500362638365,
+    "gross_energy_j": 1458.7074229983532,
+    "duration_s": 30.00529289699989
+  },
+  "models": {
+    "CNN": {
+      "sample_count": 291,
+      "avg_power_w": 156.24971894105684,
+      "gross_energy_j": 5346.161294679463,
+      "duration_s": 34.21549383199999,
+      "model": "CNN",
+      "inferences": 1276,
+      "expected_test_videos": 1276,
+      "full_test_split_processed": true,
+      "latency_ms_per_inference": 26.862338072101082,
+      "energy_per_inference_j": 4.189781578902401,
+      "measurement_note": "Gross GPU-board energy during the timed full-test pass; includes idle/background power and any other GPU activity.",
+      "idle_baseline_w": 48.61500362638365,
+      "estimated_incremental_power_w": 107.6347153146732,
+      "estimated_incremental_energy_j": 3682.774937958276,
+      "estimated_incremental_energy_per_inference_j": 2.886187255453194
+    },
+    "Direct SNN": {
+      "sample_count": 1784,
+      "avg_power_w": 312.3584196536628,
+      "gross_energy_j": 66129.41629795438,
+      "duration_s": 211.71004889600044,
+      "model": "Direct SNN",
+      "inferences": 1276,
+      "expected_test_videos": 1276,
+      "full_test_split_processed": true,
+      "latency_ms_per_inference": 165.98951686206863,
+      "energy_per_inference_j": 51.82556136203321,
+      "measurement_note": "Gross GPU-board energy during the timed full-test pass; includes idle/background power and any other GPU activity.",
+      "idle_baseline_w": 48.61500362638365,
+      "estimated_incremental_power_w": 263.7434160272791,
+      "estimated_incremental_energy_j": 55837.13150313345,
+      "estimated_incremental_energy_per_inference_j": 43.75950744759675
+    },
+    "Fine-tuned SNN": {
+      "sample_count": 1787,
+      "avg_power_w": 319.5477163234482,
+      "gross_energy_j": 67767.99711088018,
+      "duration_s": 212.0747345359996,
+      "model": "Fine-tuned SNN",
+      "inferences": 1276,
+      "expected_test_videos": 1276,
+      "full_test_split_processed": true,
+      "latency_ms_per_inference": 166.22398553448343,
+      "energy_per_inference_j": 53.109715604138074,
+      "measurement_note": "Gross GPU-board energy during the timed full-test pass; includes idle/background power and any other GPU activity.",
+      "idle_baseline_w": 48.61500362638365,
+      "estimated_incremental_power_w": 270.9327126970645,
+      "estimated_incremental_energy_j": 57457.9831223482,
+      "estimated_incremental_energy_per_inference_j": 45.02976733726348
+    }
+  },
+  "interpretation": "Power is sampled using nvidia-smi power.draw and integrated over time. This estimates GPU-board energy, not whole-system energy. The idle-subtracted value is approximate because sampling is coarse and GPU power cannot be isolated perfectly by process."
+}

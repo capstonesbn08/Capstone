@@ -84,13 +84,6 @@ parser.add_argument("--save_path", default="snn_finetuned.pt")
 parser.add_argument("--log_every", type=int, default=10, help="Print training loss every N batches")
 
 parser.add_argument(
-    "--checkpoint_every",
-    type=int,
-    default=2,
-    help="Save a training checkpoint every N epochs"
-)
-
-parser.add_argument(
     "--resume_from",
     default=None,
     help="Path to a previously fine-tuned checkpoint (from this script) to resume training from, instead of starting fresh from --weights",
@@ -100,7 +93,7 @@ parser.add_argument(
     "--checkpoint_every",
     type=int,
     default=2,
-    help="Save checkpoint every N epochs",
+    help="Save a training checkpoint every N epochs",
 )
 
 args = parser.parse_args()
@@ -292,6 +285,11 @@ mae0, rmse0, r20 = validate(snn_model_eval, val_loader, args.T_eval)
 print(f"  MAE={mae0:.4f}  RMSE={rmse0:.4f}  R2={r20:.4f}")
 
 best_r2 = r20
+
+# Safe defaults, in case the periodic-checkpoint block fires on an
+# epoch where validation didn't run (e.g. if val_every > 1 is used
+# in the future) — avoids a NameError referencing an unset variable.
+mae, rmse, r2 = mae0, rmse0, r20
 
 
 # ============================================================

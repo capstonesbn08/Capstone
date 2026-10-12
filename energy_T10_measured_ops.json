@@ -1,0 +1,627 @@
+{
+  "settings": {
+    "T": 10,
+    "n_videos_for_activity_measurement": 30,
+    "data_dir": "/home/mluser/datasets/EchoNet-Dynamic",
+    "weights": "/home/mluser/checkpoints/best.pt",
+    "finetuned_checkpoint": "/home/mluser/Capstone/ckpt_l4/l4_40ep_best_e24.pt",
+    "mean": [
+      32.17089,
+      32.344757,
+      32.69524
+    ],
+    "std": [
+      49.570095,
+      49.708492,
+      50.082714
+    ],
+    "lif_threshold": 0.5,
+    "lif_decay": 0.9,
+    "neurons_per_step": 123704812.0,
+    "energy_assumptions_pJ": {
+      "fp32": {
+        "e_mac": 4.6,
+        "e_ac": 0.9
+      },
+      "int32": {
+        "e_mac": 3.2,
+        "e_ac": 0.1
+      }
+    },
+    "note": "Analytical energy estimate, not measured physical energy."
+  },
+  "models": {
+    "Direct SNN": {
+      "checkpoint_metadata": {},
+      "operation_summary": {
+        "cnn_macs": 81037752832.0,
+        "snn_ac_ops": 184313373696.09998,
+        "snn_mac_ops": 6638289920.0,
+        "snn_neuron_updates": 1237048120.0,
+        "n_binary_input_layers": 36,
+        "n_layers": 38,
+        "energy_mJ": {
+          "fp32": {
+            "cnn": 372.7736630272,
+            "snn": 202.10859131049,
+            "snn_synaptic_only": 196.41816995848998,
+            "ratio": 0.542175081976601
+          },
+          "int32": {
+            "cnn": 259.32080906240003,
+            "snn": 43.632419097610004,
+            "snn_synaptic_only": 39.67386511361,
+            "ratio": 0.1682565284882741
+          }
+        }
+      },
+      "layers": {
+        "stem.0": {
+          "layer_macs_per_step": 663828480.0,
+          "nonzero_input_fraction": 1.0,
+          "binary_input": false,
+          "input_elements_observed": 361267200.0,
+          "nonzero_inputs_observed": 361267200.0
+        },
+        "stem.3": {
+          "layer_macs_per_step": 867041280.0,
+          "nonzero_input_fraction": 0.3942718608276644,
+          "binary_input": true,
+          "input_elements_observed": 1354752000.0,
+          "nonzero_inputs_observed": 534140592.0
+        },
+        "layer1.0.conv1.0.0": {
+          "layer_macs_per_step": 8323596288.0,
+          "nonzero_input_fraction": 0.38546082684782895,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 742689886.0
+        },
+        "layer1.0.conv1.0.3": {
+          "layer_macs_per_step": 2774532096.0,
+          "nonzero_input_fraction": 0.14286343990449912,
+          "binary_input": true,
+          "input_elements_observed": 4335206400.0,
+          "nonzero_inputs_observed": 619342499.0
+        },
+        "layer1.0.conv2.0.0": {
+          "layer_macs_per_step": 8323596288.0,
+          "nonzero_input_fraction": 0.2085196047413106,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 401766900.0
+        },
+        "layer1.0.conv2.0.3": {
+          "layer_macs_per_step": 2774532096.0,
+          "nonzero_input_fraction": 0.1095198164036665,
+          "binary_input": true,
+          "input_elements_observed": 4335206400.0,
+          "nonzero_inputs_observed": 474791009.0
+        },
+        "layer1.1.conv1.0.0": {
+          "layer_macs_per_step": 8323596288.0,
+          "nonzero_input_fraction": 0.4958248724905001,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 955334738.0
+        },
+        "layer1.1.conv1.0.3": {
+          "layer_macs_per_step": 2774532096.0,
+          "nonzero_input_fraction": 0.12253705406044796,
+          "binary_input": true,
+          "input_elements_observed": 4335206400.0,
+          "nonzero_inputs_observed": 531223421.0
+        },
+        "layer1.1.conv2.0.0": {
+          "layer_macs_per_step": 8323596288.0,
+          "nonzero_input_fraction": 0.1166623407480668,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 224780145.0
+        },
+        "layer1.1.conv2.0.3": {
+          "layer_macs_per_step": 2774532096.0,
+          "nonzero_input_fraction": 0.08347230641659875,
+          "binary_input": true,
+          "input_elements_observed": 4335206400.0,
+          "nonzero_inputs_observed": 361869677.0
+        },
+        "layer2.0.conv1.0.0": {
+          "layer_macs_per_step": 3323658240.0,
+          "nonzero_input_fraction": 0.5442102471176459,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 1048561665.0
+        },
+        "layer2.0.conv1.0.3": {
+          "layer_macs_per_step": 1107886080.0,
+          "nonzero_input_fraction": 0.058738130476375335,
+          "binary_input": true,
+          "input_elements_observed": 1731072000.0,
+          "nonzero_inputs_observed": 101679933.0
+        },
+        "layer2.0.conv2.0.0": {
+          "layer_macs_per_step": 3323658240.0,
+          "nonzero_input_fraction": 0.18365188494831527,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 88463203.0
+        },
+        "layer2.0.conv2.0.3": {
+          "layer_macs_per_step": 1107886080.0,
+          "nonzero_input_fraction": 0.06163919813849453,
+          "binary_input": true,
+          "input_elements_observed": 865536000.0,
+          "nonzero_inputs_observed": 53350945.0
+        },
+        "layer2.0.downsample.0": {
+          "layer_macs_per_step": 102760448.0,
+          "nonzero_input_fraction": 0.5442102471176459,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 1048561665.0
+        },
+        "layer2.1.conv1.0.0": {
+          "layer_macs_per_step": 4161798144.0,
+          "nonzero_input_fraction": 0.3450881189878295,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 166225358.0
+        },
+        "layer2.1.conv1.0.3": {
+          "layer_macs_per_step": 1387266048.0,
+          "nonzero_input_fraction": 0.0408211622865292,
+          "binary_input": true,
+          "input_elements_observed": 1083801600.0,
+          "nonzero_inputs_observed": 44242041.0
+        },
+        "layer2.1.conv2.0.0": {
+          "layer_macs_per_step": 4161798144.0,
+          "nonzero_input_fraction": 0.10493008152968218,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 50543729.0
+        },
+        "layer2.1.conv2.0.3": {
+          "layer_macs_per_step": 1387266048.0,
+          "nonzero_input_fraction": 0.043214304167847696,
+          "binary_input": true,
+          "input_elements_observed": 1083801600.0,
+          "nonzero_inputs_observed": 46835732.0
+        },
+        "layer3.0.conv1.0.0": {
+          "layer_macs_per_step": 1661829120.0,
+          "nonzero_input_fraction": 0.3431763027476616,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 165304456.0
+        },
+        "layer3.0.conv1.0.3": {
+          "layer_macs_per_step": 553943040.0,
+          "nonzero_input_fraction": 0.03872057545844425,
+          "binary_input": true,
+          "input_elements_observed": 432768000.0,
+          "nonzero_inputs_observed": 16757026.0
+        },
+        "layer3.0.conv2.0.0": {
+          "layer_macs_per_step": 1661829120.0,
+          "nonzero_input_fraction": 0.17790791414221938,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 21424098.0
+        },
+        "layer3.0.conv2.0.3": {
+          "layer_macs_per_step": 553943040.0,
+          "nonzero_input_fraction": 0.07969115553830228,
+          "binary_input": true,
+          "input_elements_observed": 216384000.0,
+          "nonzero_inputs_observed": 17243891.0
+        },
+        "layer3.0.downsample.0": {
+          "layer_macs_per_step": 51380224.0,
+          "nonzero_input_fraction": 0.3431763027476616,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 165304456.0
+        },
+        "layer3.1.conv1.0.0": {
+          "layer_macs_per_step": 2080899072.0,
+          "nonzero_input_fraction": 0.1976009197624362,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 23795577.0
+        },
+        "layer3.1.conv1.0.3": {
+          "layer_macs_per_step": 693633024.0,
+          "nonzero_input_fraction": 0.04032246861418178,
+          "binary_input": true,
+          "input_elements_observed": 270950400.0,
+          "nonzero_inputs_observed": 10925389.0
+        },
+        "layer3.1.conv2.0.0": {
+          "layer_macs_per_step": 2080899072.0,
+          "nonzero_input_fraction": 0.12215579493516157,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 14710294.0
+        },
+        "layer3.1.conv2.0.3": {
+          "layer_macs_per_step": 693633024.0,
+          "nonzero_input_fraction": 0.054593600895219196,
+          "binary_input": true,
+          "input_elements_observed": 270950400.0,
+          "nonzero_inputs_observed": 14792158.0
+        },
+        "layer4.0.conv1.0.0": {
+          "layer_macs_per_step": 831817728.0,
+          "nonzero_input_fraction": 0.20854121824511054,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 25113034.0
+        },
+        "layer4.0.conv1.0.3": {
+          "layer_macs_per_step": 277272576.0,
+          "nonzero_input_fraction": 0.039513413400104884,
+          "binary_input": true,
+          "input_elements_observed": 108309600.0,
+          "nonzero_inputs_observed": 4279682.0
+        },
+        "layer4.0.conv2.0.0": {
+          "layer_macs_per_step": 831817728.0,
+          "nonzero_input_fraction": 0.09441569010416667,
+          "binary_input": true,
+          "input_elements_observed": 30105600.0,
+          "nonzero_inputs_observed": 2842441.0
+        },
+        "layer4.0.conv2.0.3": {
+          "layer_macs_per_step": 277272576.0,
+          "nonzero_input_fraction": 0.027011123667708126,
+          "binary_input": true,
+          "input_elements_observed": 54154800.0,
+          "nonzero_inputs_observed": 1462782.0
+        },
+        "layer4.0.downsample.0": {
+          "layer_macs_per_step": 25690112.0,
+          "nonzero_input_fraction": 0.20854121824511054,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 25113034.0
+        },
+        "layer4.1.conv1.0.0": {
+          "layer_macs_per_step": 1040449536.0,
+          "nonzero_input_fraction": 0.18808965773809525,
+          "binary_input": true,
+          "input_elements_observed": 30105600.0,
+          "nonzero_inputs_observed": 5662552.0
+        },
+        "layer4.1.conv1.0.3": {
+          "layer_macs_per_step": 346816512.0,
+          "nonzero_input_fraction": 0.014172483229402873,
+          "binary_input": true,
+          "input_elements_observed": 67737600.0,
+          "nonzero_inputs_observed": 960010.0
+        },
+        "layer4.1.conv2.0.0": {
+          "layer_macs_per_step": 1040449536.0,
+          "nonzero_input_fraction": 0.01828756111819728,
+          "binary_input": true,
+          "input_elements_observed": 30105600.0,
+          "nonzero_inputs_observed": 550558.0
+        },
+        "layer4.1.conv2.0.3": {
+          "layer_macs_per_step": 346816512.0,
+          "nonzero_input_fraction": 0.005047049201625095,
+          "binary_input": true,
+          "input_elements_observed": 67737600.0,
+          "nonzero_inputs_observed": 341875.0
+        },
+        "fc": {
+          "layer_macs_per_step": 512.0,
+          "nonzero_input_fraction": 0.9260611979166666,
+          "binary_input": false,
+          "input_elements_observed": 153600.0,
+          "nonzero_inputs_observed": 142243.0
+        }
+      }
+    },
+    "Fine-tuned SNN": {
+      "checkpoint_metadata": {
+        "epoch": 24,
+        "val_r2": 0.7155289523356927,
+        "val_mae": 5.3747384643554685,
+        "val_rmse": 6.905251610110933,
+        "freeze_prefixes": "stem,layer1,layer2,layer3"
+      },
+      "operation_summary": {
+        "cnn_macs": 81037752832.0,
+        "snn_ac_ops": 185048163101.33334,
+        "snn_mac_ops": 6638289920.0,
+        "snn_neuron_updates": 1237048120.0,
+        "n_binary_input_layers": 36,
+        "n_layers": 38,
+        "energy_mJ": {
+          "fp32": {
+            "cnn": 372.7736630272,
+            "snn": 202.76990177520003,
+            "snn_synaptic_only": 197.0794804232,
+            "ratio": 0.543949108766315
+          },
+          "int32": {
+            "cnn": 259.32080906240003,
+            "snn": 43.705898038133334,
+            "snn_synaptic_only": 39.74734405413333,
+            "ratio": 0.16853987998940895
+          }
+        }
+      },
+      "layers": {
+        "stem.0": {
+          "layer_macs_per_step": 663828480.0,
+          "nonzero_input_fraction": 1.0,
+          "binary_input": false,
+          "input_elements_observed": 361267200.0,
+          "nonzero_inputs_observed": 361267200.0
+        },
+        "stem.3": {
+          "layer_macs_per_step": 867041280.0,
+          "nonzero_input_fraction": 0.3940899943310658,
+          "binary_input": true,
+          "input_elements_observed": 1354752000.0,
+          "nonzero_inputs_observed": 533894208.0
+        },
+        "layer1.0.conv1.0.0": {
+          "layer_macs_per_step": 8323596288.0,
+          "nonzero_input_fraction": 0.3854447656748246,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 742658940.0
+        },
+        "layer1.0.conv1.0.3": {
+          "layer_macs_per_step": 2774532096.0,
+          "nonzero_input_fraction": 0.14285479441071133,
+          "binary_input": true,
+          "input_elements_observed": 4335206400.0,
+          "nonzero_inputs_observed": 619305019.0
+        },
+        "layer1.0.conv2.0.0": {
+          "layer_macs_per_step": 8323596288.0,
+          "nonzero_input_fraction": 0.20840526035853796,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 401546586.0
+        },
+        "layer1.0.conv2.0.3": {
+          "layer_macs_per_step": 2774532096.0,
+          "nonzero_input_fraction": 0.10950703339061318,
+          "binary_input": true,
+          "input_elements_observed": 4335206400.0,
+          "nonzero_inputs_observed": 474735592.0
+        },
+        "layer1.1.conv1.0.0": {
+          "layer_macs_per_step": 8323596288.0,
+          "nonzero_input_fraction": 0.49592017712236264,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 955518367.0
+        },
+        "layer1.1.conv1.0.3": {
+          "layer_macs_per_step": 2774532096.0,
+          "nonzero_input_fraction": 0.12252020480501229,
+          "binary_input": true,
+          "input_elements_observed": 4335206400.0,
+          "nonzero_inputs_observed": 531150376.0
+        },
+        "layer1.1.conv2.0.0": {
+          "layer_macs_per_step": 8323596288.0,
+          "nonzero_input_fraction": 0.1167168125489942,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 224885099.0
+        },
+        "layer1.1.conv2.0.3": {
+          "layer_macs_per_step": 2774532096.0,
+          "nonzero_input_fraction": 0.08352720968487222,
+          "binary_input": true,
+          "input_elements_observed": 4335206400.0,
+          "nonzero_inputs_observed": 362107694.0
+        },
+        "layer2.0.conv1.0.0": {
+          "layer_macs_per_step": 3323658240.0,
+          "nonzero_input_fraction": 0.5441591052619779,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 1048463127.0
+        },
+        "layer2.0.conv1.0.3": {
+          "layer_macs_per_step": 1107886080.0,
+          "nonzero_input_fraction": 0.058753374209738245,
+          "binary_input": true,
+          "input_elements_observed": 1731072000.0,
+          "nonzero_inputs_observed": 101706321.0
+        },
+        "layer2.0.conv2.0.0": {
+          "layer_macs_per_step": 3323658240.0,
+          "nonzero_input_fraction": 0.18376601653845132,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 88518179.0
+        },
+        "layer2.0.conv2.0.3": {
+          "layer_macs_per_step": 1107886080.0,
+          "nonzero_input_fraction": 0.061720762625702454,
+          "binary_input": true,
+          "input_elements_observed": 865536000.0,
+          "nonzero_inputs_observed": 53421542.0
+        },
+        "layer2.0.downsample.0": {
+          "layer_macs_per_step": 102760448.0,
+          "nonzero_input_fraction": 0.5441591052619779,
+          "binary_input": true,
+          "input_elements_observed": 1926758400.0,
+          "nonzero_inputs_observed": 1048463127.0
+        },
+        "layer2.1.conv1.0.0": {
+          "layer_macs_per_step": 4161798144.0,
+          "nonzero_input_fraction": 0.3449104796948076,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 166139791.0
+        },
+        "layer2.1.conv1.0.3": {
+          "layer_macs_per_step": 1387266048.0,
+          "nonzero_input_fraction": 0.04083904471076625,
+          "binary_input": true,
+          "input_elements_observed": 1083801600.0,
+          "nonzero_inputs_observed": 44261422.0
+        },
+        "layer2.1.conv2.0.0": {
+          "layer_macs_per_step": 4161798144.0,
+          "nonzero_input_fraction": 0.10492923866323874,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 50543323.0
+        },
+        "layer2.1.conv2.0.3": {
+          "layer_macs_per_step": 1387266048.0,
+          "nonzero_input_fraction": 0.043216784326577856,
+          "binary_input": true,
+          "input_elements_observed": 1083801600.0,
+          "nonzero_inputs_observed": 46838420.0
+        },
+        "layer3.0.conv1.0.0": {
+          "layer_macs_per_step": 1661829120.0,
+          "nonzero_input_fraction": 0.34297032777954933,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 165205240.0
+        },
+        "layer3.0.conv1.0.3": {
+          "layer_macs_per_step": 553943040.0,
+          "nonzero_input_fraction": 0.03877816058488613,
+          "binary_input": true,
+          "input_elements_observed": 432768000.0,
+          "nonzero_inputs_observed": 16781947.0
+        },
+        "layer3.0.conv2.0.0": {
+          "layer_macs_per_step": 1661829120.0,
+          "nonzero_input_fraction": 0.17776918579931972,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 21407392.0
+        },
+        "layer3.0.conv2.0.3": {
+          "layer_macs_per_step": 553943040.0,
+          "nonzero_input_fraction": 0.07976871210440697,
+          "binary_input": true,
+          "input_elements_observed": 216384000.0,
+          "nonzero_inputs_observed": 17260673.0
+        },
+        "layer3.0.downsample.0": {
+          "layer_macs_per_step": 51380224.0,
+          "nonzero_input_fraction": 0.34297032777954933,
+          "binary_input": true,
+          "input_elements_observed": 481689600.0,
+          "nonzero_inputs_observed": 165205240.0
+        },
+        "layer3.1.conv1.0.0": {
+          "layer_macs_per_step": 2080899072.0,
+          "nonzero_input_fraction": 0.19761586714764032,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 23797377.0
+        },
+        "layer3.1.conv1.0.3": {
+          "layer_macs_per_step": 693633024.0,
+          "nonzero_input_fraction": 0.04047091644817649,
+          "binary_input": true,
+          "input_elements_observed": 270950400.0,
+          "nonzero_inputs_observed": 10965611.0
+        },
+        "layer3.1.conv2.0.0": {
+          "layer_macs_per_step": 2080899072.0,
+          "nonzero_input_fraction": 0.12182961807769983,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 14671015.0
+        },
+        "layer3.1.conv2.0.3": {
+          "layer_macs_per_step": 693633024.0,
+          "nonzero_input_fraction": 0.05451029782572751,
+          "binary_input": true,
+          "input_elements_observed": 270950400.0,
+          "nonzero_inputs_observed": 14769587.0
+        },
+        "layer4.0.conv1.0.0": {
+          "layer_macs_per_step": 831817728.0,
+          "nonzero_input_fraction": 0.20868584250106292,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 25130450.0
+        },
+        "layer4.0.conv1.0.3": {
+          "layer_macs_per_step": 277272576.0,
+          "nonzero_input_fraction": 0.04892974399314558,
+          "binary_input": true,
+          "input_elements_observed": 108309600.0,
+          "nonzero_inputs_observed": 5299561.0
+        },
+        "layer4.0.conv2.0.0": {
+          "layer_macs_per_step": 831817728.0,
+          "nonzero_input_fraction": 0.07868472975127551,
+          "binary_input": true,
+          "input_elements_observed": 30105600.0,
+          "nonzero_inputs_observed": 2368851.0
+        },
+        "layer4.0.conv2.0.3": {
+          "layer_macs_per_step": 277272576.0,
+          "nonzero_input_fraction": 0.03346004416967656,
+          "binary_input": true,
+          "input_elements_observed": 54154800.0,
+          "nonzero_inputs_observed": 1812022.0
+        },
+        "layer4.0.downsample.0": {
+          "layer_macs_per_step": 25690112.0,
+          "nonzero_input_fraction": 0.20868584250106292,
+          "binary_input": true,
+          "input_elements_observed": 120422400.0,
+          "nonzero_inputs_observed": 25130450.0
+        },
+        "layer4.1.conv1.0.0": {
+          "layer_macs_per_step": 1040449536.0,
+          "nonzero_input_fraction": 0.21035714285714285,
+          "binary_input": true,
+          "input_elements_observed": 30105600.0,
+          "nonzero_inputs_observed": 6332928.0
+        },
+        "layer4.1.conv1.0.3": {
+          "layer_macs_per_step": 346816512.0,
+          "nonzero_input_fraction": 0.04089864417989418,
+          "binary_input": true,
+          "input_elements_observed": 67737600.0,
+          "nonzero_inputs_observed": 2770376.0
+        },
+        "layer4.1.conv2.0.0": {
+          "layer_macs_per_step": 1040449536.0,
+          "nonzero_input_fraction": 0.06095553651147959,
+          "binary_input": true,
+          "input_elements_observed": 30105600.0,
+          "nonzero_inputs_observed": 1835103.0
+        },
+        "layer4.1.conv2.0.3": {
+          "layer_macs_per_step": 346816512.0,
+          "nonzero_input_fraction": 0.024292416619425546,
+          "binary_input": true,
+          "input_elements_observed": 67737600.0,
+          "nonzero_inputs_observed": 1645510.0
+        },
+        "fc": {
+          "layer_macs_per_step": 512.0,
+          "nonzero_input_fraction": 0.9669986979166667,
+          "binary_input": false,
+          "input_elements_observed": 153600.0,
+          "nonzero_inputs_observed": 148531.0
+        }
+      }
+    }
+  }
+}
